@@ -11,6 +11,6 @@ videogame.get("/", getVideogame);
 
 videogame.get("/:id",getVideogames)
 
-videogame.post("/",validate, createVideogame);
+videogame.post("/", validate,createVideogame);
 
 module.exports = videogame;

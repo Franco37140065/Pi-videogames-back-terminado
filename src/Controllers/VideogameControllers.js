@@ -1,6 +1,8 @@
-const { Videogame,genres } = require("../db");
+const { Videogame,Genres } = require("../db");
 const { getAllvideogames } = require("../utils/index")
 const axios = require("axios")
+
+
 
 
 
@@ -32,11 +34,20 @@ const getVideogames= async( req,res) => {
 
 
 const createVideogame = async (req,res) => {
-   try {const { name, description, released, rating, platforms,} = req.body;
-   const newGame = await Videogame.create ({
-   name, description, released, rating, platforms,});
-   res.status(200).json(newGame);
+   try {
+      const { name, description, released, rating, platforms,genres} = req.body;
+      const newGame = await Videogame.create ({
+      name, description, released, rating, platforms});
+      //console.log(newGame)
+      const genresDb = await Genres.findAll({
+        where:{name:genres}
 
+      })
+      newGame.addGenres(genresDb)
+      
+      res.status(200).json(newGame);
+
+      //console.log(newGame)
     
    } catch (error) {
     res.status(400).json({error: error.message})
