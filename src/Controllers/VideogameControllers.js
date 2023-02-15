@@ -1,6 +1,6 @@
 const { Videogame,Genres } = require("../db");
 const { getAllvideogames } = require("../utils/index")
-const axios = require("axios")
+
 
 
 
@@ -11,15 +11,26 @@ const axios = require("axios")
 
 const getVideogame = async (req,res) => {
 
-    const{ name }= req.query;
-    const findVideogame = () => {};
-    let results = name ? findVideogame() : await getAllvideogames();
-    res.status(200).json(results)
+    // const{ name }= req.query;
+    // const findVideogame = () => {};
+    // let results = name ? findVideogame() : await getAllvideogames();
+    // res.status(200).json(results)
+
+    const name = req.query.name
+    let gamesTotal = await getAllvideogames();
+    if(name){
+      let gameName = await gamesTotal.filter(e => e.name.toLowerCase().includes(name.toLowerCase()))
+      gameName.length ?
+      res.status(200).json(gameName) :
+      res.status(400).send("Missing game")
+    }else{
+      res.status(200).json(gamesTotal)
+    }
 }
 
 
 
-const getVideogames= async( req,res) => {
+const getVideogamesId= async( req,res) => {
   const  { id} = req.params;
   const response = await getAllvideogames();
   
@@ -35,18 +46,19 @@ const getVideogames= async( req,res) => {
 
 const createVideogame = async (req,res) => {
    try {
-      const { name, description, released, rating, platforms,genres} = req.body;
+      const { name, description, released, rating, platforms,createdInDb,genres} = req.body;
       const newGame = await Videogame.create ({
-      name, description, released, rating, platforms});
+      name, description, released, rating, platforms,createdInDb});
       //console.log(newGame)
       const genresDb = await Genres.findAll({
         where:{name:genres}
 
       })
+      
       newGame.addGenres(genresDb)
       
-      res.status(200).json(newGame);
-
+     // res.status(200).json(newGame);
+      res.send("Juego creado con exito")
       //console.log(newGame)
     
    } catch (error) {
@@ -56,4 +68,4 @@ const createVideogame = async (req,res) => {
 
        
 };
-module.exports = {getVideogame, getVideogames, createVideogame}
+module.exports = {getVideogame, getVideogamesId, createVideogame}

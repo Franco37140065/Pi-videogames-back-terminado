@@ -4,7 +4,7 @@ const { Router } = require('express');
 const { Genres } = require('../db')
 const axios = require("axios")
 
-const genresRouter = Router();
+const genresRouter = Router();//esta ruta es para traer los generos de la api a mi base de datos
 
 genresRouter.get("/",async (req, res)=>{
     try {

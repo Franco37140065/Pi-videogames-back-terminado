@@ -23,18 +23,25 @@ return apiVideosgamesClean
 
 }
 const getDbVideogames = async()=>{
-    const dbVideosgames = await Videogame.findAll()
-    const dbVideogamesClean = dbVideosgames.map((e)=>{
-    return {
-        id:e.id,       
-        name:e.name, 
-        description:e.description, 
-        released:e.released, 
-        rating:e.rating , 
-        platforms:e.platforms,
-    };
-});
-return dbVideogamesClean
+    return  await Videogame.findAll({include:{
+        model:Genres,
+        attributes:["name"],
+        through:{
+            attributes: [],
+        },
+}})
+   
+//     const dbVideogamesClean = dbVideosgames.map((e)=>{
+//     return {
+//         id:e.id,       
+//         name:e.name, 
+//         description:e.description, 
+//         released:e.released, 
+//         rating:e.rating , 
+//         platforms:e.platforms,
+//     };
+// });
+// return dbVideogamesClean
 }
 const getAllvideogames = async()=>{
 const dbVideosgames = await getDbVideogames();
