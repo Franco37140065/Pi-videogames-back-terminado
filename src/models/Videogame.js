@@ -9,6 +9,7 @@ module.exports = (sequelize) => {
       defaultValue: DataTypes.UUIDV4,
       allowNull: false,
       primaryKey: true,
+    
     },
 
     name: {
@@ -21,16 +22,21 @@ module.exports = (sequelize) => {
     },
     released: {
       type: DataTypes.STRING,
-      allowNull: false,
+      allowNull: true,
     },
     rating: {
       type: DataTypes.STRING,
-      allowNull: false,
+      allowNull: true,
     },
     platforms:{
       type:DataTypes.STRING,
       allowNull:false,
     },
+    createInDb:{
+      type:DataTypes.BOOLEAN,
+      allowNull:false,
+      defaultValue:true,
+    }
   },
     {
       timestamps : false,

@@ -1,20 +1,10 @@
 const { Videogame,Genres } = require("../db");
-const { getAllvideogames } = require("../utils/index")
-
-
-
-
-
-
-
-
+const { getAllvideogames, getDbVideogames } = require("../utils/index")
+const { API_KEY } = process.env;
+require('dotenv').config();
+const axios = require('axios')
 
 const getVideogame = async (req,res) => {
-
-    // const{ name }= req.query;
-    // const findVideogame = () => {};
-    // let results = name ? findVideogame() : await getAllvideogames();
-    // res.status(200).json(results)
 
     const name = req.query.name
     let gamesTotal = await getAllvideogames();
@@ -31,41 +21,63 @@ const getVideogame = async (req,res) => {
 
 
 const getVideogamesId= async( req,res) => {
-  const  { id} = req.params;
-  const response = await getAllvideogames();
+  const  { id } = req.params;
+  const regex = /([a-zA-Z]+([0-9]+[a-zA-Z]+)+)/
+    if (regex.test(id)){
+      const fromDB = await getDbVideogames(id)
+      return res.json(fromDB)
+    }
   
-    if(id ){
-      let gamesId = response.filter(e => e.id == id)
-      gamesId.length?
-      res.status(200).json(gamesId):
-      res.status(400).send("no se encontro el juego")
+   else{ try {
+        const response = await axios.get(`https://api.rawg.io/api/games/${id}?key=${API_KEY}`);
+      let { name, background_image, genres, description_raw, released, rating, platforms } = response.data;
+      genres = genres.map(g => g.name); // de la API me trae un array de objetos, mapeo solo el nombre del genero
+      platforms = platforms.map(p => p.platform.name); // de la API me trae un array de objetos, mapeo solo el nombre de la plataforma
+      return res.json({
+          
+          name,
+          background_image,
+          genres,
+          description_raw,
+          released,
+          rating,
+          platforms
+      })
+  } catch (err) {
+      return console.log(err)
+  
+    }
+  }
+  
 }
-   
-}
-
 
 const createVideogame = async (req,res) => {
-   try {
-      const { name, description, released, rating, platforms,createdInDb,genres} = req.body;
-      const newGame = await Videogame.create ({
-      name, description, released, rating, platforms,createdInDb});
-      //console.log(newGame)
-      const genresDb = await Genres.findAll({
-        where:{name:genres}
+  let { name, description, released, rating, genres, platforms, createInDb} = req.body;
 
+  try {
+      const newGame = await Videogame.create({ 
+        
+              createInDb, 
+              name,
+              description,
+              released,
+              rating,
+              platforms,
+              
+              
+          
       })
-      
-      newGame.addGenres(genresDb)
-      
-     // res.status(200).json(newGame);
-      res.send("Juego creado con exito")
-      //console.log(newGame)
-    
-   } catch (error) {
-    res.status(400).json({error: error.message})
-   }
-  
 
-       
-};
+      const genresDb = await Genres.findAll({
+          where:{name:genres}
+      
+        })   
+          newGame.addGenres(genresDb)
+  } catch (err) {
+      console.log(err);
+  }
+  res.send('Created succesfully, saludos desde el BACK!!')
+
+}
+  
 module.exports = {getVideogame, getVideogamesId, createVideogame}
